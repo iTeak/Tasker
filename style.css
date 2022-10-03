@@ -69,3 +69,12 @@ body {
     font-size: 20px;
     transition: all .3s ease-in-out;
   }
+
+  .blockgrid {
+display: grid;
+grid-template-columns: .5fr 3fr .2fr;
+margin-bottom: 25px;
+padding: 10px;
+margin-left: flex;
+
+  }
