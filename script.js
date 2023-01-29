@@ -2,6 +2,9 @@ $(document).ready(function(){
 var userinput =[]
 var time = moment().hour();
 var textarea = document.querySelector("#text")
+var timeids2 = [9, 10, 11,12,13,14,15,16,17]
+var timeids = document.getElementById("timeids")
+
 // Set today's date 
 function currentday(){ 
 var today = moment().format('dddd, MMMM Do')
@@ -10,19 +13,23 @@ $('#currentDay').text(today);
 currentday()
 console.log(time)
 //Logic for past, current, and past 
-for (var i=0;i<timeids.length; i++){
-  var timeids2 = parseInt(["9", "10", "11", "12", "13", "14", "15", "16","17"])
+
+for (var i=0;i<timeids2.length; i++){
+  console.log(timeids2)
   if (timeids2 < time) {
     $(timeids).addClass('past');
   }
   else if (timeids2 === time){
+$(timeids).removeClass('past')   
 $(timeids).addClass('present');
   }
   else{
+    $(timeids).removeClass('past');
+    $(timeids).removeClass('present');
     $(timeids).addClass('future');
   }
-  console.log(timeids2)
 }
+
 //Logic to collect user input 
 $(".saveBtn").on('click',function(){
   // this is to save indivudally 
