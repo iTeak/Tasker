@@ -1,123 +1,59 @@
-$(document).ready(function(){
-var userinput =[]
-var time = moment().hour();
-var textarea = document.querySelector("#text")
-var timeids2 = [9, 10, 11,12,13,14,15,16,17]
-var timeids = document.getElementById("timeids")
+var idsCollection = ["#9", "#10", "#11", "#12", "#1", "#2", "#3", "#4",  "#5"];
+var timeSlotCollection = ["09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00",  "14:00:00",  "15:00:00",  "16:00:00",  "17:00:00"];
+var shiftedTimeSlotCollection = ["10:00:00", "11:00:00", "12:00:00", "13:00:00",  "14:00:00",  "15:00:00",  "16:00:00",  "17:00:00",  "18:00:00"];
 
-// Set today's date 
-function currentday(){ 
-var today = moment().format('dddd, MMMM Do')
-$('#currentDay').text(today);
+var todayDate = moment().format('dddd, MMM Do YYYY');
+$("#currentDay").html(todayDate);
+
+var  plannerContent = [];
+var getLocalStorageData = JSON.parse(localStorage.getItem("planner-items"));
+
+if (getLocalStorageData !== null) {
+ plannerContent = getLocalStorageData;
 }
-currentday()
-console.log(time)
-//Logic for past, current, and past 
 
-for (var i=0;i<timeids2.length; i++){
-  console.log(timeids2)
-  if (timeids2 < time) {
-    $(timeids).addClass('past');
+for (var i=0;i<idsCollection.length; i++) {
+  var descriptionEl = $(idsCollection[i]);
+  var buttonEl = descriptionEl.parent().parent().find("button");
+
+  if ((moment().format('MMMM Do YYYY, HH:mm:ss')) < (moment().format('MMMM Do YYYY') +  ", " + timeSlotCollection[i])) { 
+    descriptionEl.attr("class", "future");
+    plannerContent.forEach(function(item) {
+      if (idsCollection[i] === ("#" + (item["input-id"]))) {
+        descriptionEl.val(item["input-value"]);
+      }
+    });
   }
-  else if (timeids2 === time){
-$(timeids).removeClass('past')   
-$(timeids).addClass('present');
+  else if (((moment().format('MMMM Do YYYY, HH:mm:ss')) >= (moment().format('MMMM Do YYYY') +  ", " + timeSlotCollection[i])) &&  
+          ((moment().format('MMMM Do YYYY, HH:mm:ss')) < (moment().format('MMMM Do YYYY') +  ", " + shiftedTimeSlotCollection[i])))
+  {
+    descriptionEl.attr("class", "present");
+    $(".present").attr("disabled", "disabled");
+    buttonEl.attr("disabled", true);
+    plannerContent.forEach(function(item) {
+      if (idsCollection[i] === ("#" + item["input-id"])) {
+        descriptionEl.val(item["input-value"]);
+      }
+    });
   }
-  else{
-    $(timeids).removeClass('past');
-    $(timeids).removeClass('present');
-    $(timeids).addClass('future');
+  else if ((moment().format('MMMM Do YYYY, HH:mm:ss')) > (moment().format('MMMM Do YYYY') +  ", " + timeSlotCollection[i])) {
+    descriptionEl.attr("class", "past");
+    $(".past").attr("disabled", "disabled");
+    buttonEl.attr("disabled", true);
   }
 }
 
-//Logic to collect user input 
-$(".saveBtn").on('click',function(){
-  // this is to save indivudally 
-  // console.log(this) 
-  // var $row = $(this).closest(".row")  
-  //   var inputValue = $row.find("input").val();
-  //   var inputId = $row.find("input").attr("id")
-  //   console.log(inputId)
-
-var $container = $("#hours")
-var $taskInputs = $container.find("textarea")
-console.log($taskInputs)
-var tasktexts = []
-var tasks = $taskInputs.map(function(a, textarea){
-  // console.log(a,b)
-  tasktexts.push(textarea.value)
-  return textarea.value
-  
-})
-// console.log(tasktexts)
-localStorage.setItem("tasks", JSON.stringify(tasktexts))
-
-})
-//Logic to save into local storage 
-
-var loaded = localStorage.getItem("tasks")
-if (loaded){
-var loadedtasks =  JSON.parse(loaded)
-for (var i = 0; i< loadedtasks.length; i++){
-  var loadedtask = loadedtasks[i]
-  $(".row").find("textarea").eq(i).val(loadedtask)
-}
-}
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-})
-
-
-
-
-// localStorage.getItem("pokeball")
-// null
-// var caught = localStorage.getItem("pokeball")
-// undefined
-// caught
-// null
-// if (caught)console.log(caught)
-// undefined
-// localStorage.setItem("pokeball", "pikachu")
-// undefined
-// var caught = localStorage.getItem("pokeball")
-// undefined
-// if (caught)console.log(caught)
-// VM501:1 pikachu
-// undefined
-// localStorage.setItem("box", ["cup", "pencil", "peanuts", "", "choclate"])
-// undefined
-// localStorage.getItem("box")
-// 'cup,pencil,peanuts,,choclate'
-// localStorage.setItem("box", JSON.stringify(["cup", "pencil", "peanuts", "", "choclate"]))
-// undefined
-// localStorage.getItem("box")
-// '["cup","pencil","peanuts","","choclate"]'
-// JSON.parse(localStorage.getItem("box"))
-// (5) ['cup', 'pencil', 'peanuts', '', 'choclate']
+$("button").on("click", function() {
+    event.preventDefault();
+    var container = $(this).parent().parent();  
+    var inputValue = container.find("input").val();
+    var inputId = container.find("input").attr("id");
+    var textObj = {
+      "input-id": inputId,
+      "input-value": inputValue };
+    
+    if (textObj["input-value"] !== "") {
+      plannerContent.push(textObj);
+      localStorage.setItem("planner-items", JSON.stringify(plannerContent));
+    }
+  });
